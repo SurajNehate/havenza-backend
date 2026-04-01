@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: havenza-backend
+  datasource:
+    # Use environment variable or fallback to a local postgres DB URL
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/havenza}
+    username: ${DATABASE_USER:postgres}
+    password: ${DATABASE_PASSWORD:postgres}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+server:
+  port: 8080
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:dGhpc0lzQVZlcnlTZWN1cmVKd3RTZWNyZXRLZXlGb3JIYXZlbnphQXBwMTIzNA==}
+    expiration-ms: 86400000 # 24 hours
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
