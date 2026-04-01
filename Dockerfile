@@ -1,15 +1,16 @@
-FROM eclipse-temurin:17-jdk-jammy AS builder
+# Stage 1: Build using Maven image (no mvnw needed)
+FROM maven:3.9.6-eclipse-temurin-17 AS builder
 WORKDIR /app
-COPY .mvn/ .mvn
-COPY mvnw pom.xml ./
-# Make wrapper executable
-RUN chmod +x mvnw
-# Resolve dependencies
-RUN ./mvnw dependency:go-offline
 
+# Copy pom.xml first for dependency caching
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+# Copy source and build
 COPY src ./src
-RUN ./mvnw clean package -DskipTests
+RUN mvn clean package -DskipTests -B
 
+# Stage 2: Lightweight runtime image
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
