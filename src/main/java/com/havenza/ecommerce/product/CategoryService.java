@@ -1,5 +1,6 @@
 package com.havenza.ecommerce.product;
 
+import com.havenza.ecommerce.common.exception.ResourceNotFoundException;
 import com.havenza.ecommerce.product.dto.CategoryDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ public class CategoryService {
     @Transactional(readOnly = true)
     public CategoryDto getCategoryBySlug(String slug) {
         CategoryEntity category = categoryRepository.findBySlug(slug)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
         return CategoryDto.fromEntity(category);
     }
 }

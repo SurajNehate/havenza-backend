@@ -7,6 +7,7 @@ import com.havenza.ecommerce.order.OrderStatus;
 import com.havenza.ecommerce.product.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import com.havenza.ecommerce.common.PagedResponse;
+import com.havenza.ecommerce.common.exception.ResourceNotFoundException;
 import com.havenza.ecommerce.auth.UserEntity;
 import com.havenza.ecommerce.auth.dto.UserDto;
 import org.springframework.data.domain.Page;
@@ -93,21 +94,21 @@ public class AdminService {
     @Transactional(readOnly = true)
     public com.havenza.ecommerce.order.dto.OrderDto getOrderById(Long orderId) {
         com.havenza.ecommerce.order.OrderEntity order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
         return com.havenza.ecommerce.order.dto.OrderDto.fromEntity(order);
     }
 
     @Transactional
     public void deleteOrder(Long orderId) {
         com.havenza.ecommerce.order.OrderEntity order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
         orderRepository.delete(order);
     }
 
     @Transactional
     public com.havenza.ecommerce.order.dto.OrderDto updateOrderStatus(Long orderId, OrderStatus newStatus) {
         com.havenza.ecommerce.order.OrderEntity order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
         order.setStatus(newStatus);
         com.havenza.ecommerce.order.OrderEntity saved = orderRepository.save(order);
         return com.havenza.ecommerce.order.dto.OrderDto.fromEntity(saved);
@@ -116,7 +117,7 @@ public class AdminService {
     @Transactional
     public UserDto updateUserRole(Long id, com.havenza.ecommerce.auth.Role newRole) {
         UserEntity user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         user.setRole(newRole);
         UserEntity saved = userRepository.save(user);
         return UserDto.fromEntity(saved);
@@ -125,7 +126,7 @@ public class AdminService {
     @Transactional
     public UserDto updateUser(Long id, java.util.Map<String, String> body) {
         UserEntity user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         if (body.containsKey("fullName")) {
             user.setFullName(body.get("fullName"));
         }

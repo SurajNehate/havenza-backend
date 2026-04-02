@@ -1,5 +1,8 @@
 package com.havenza.ecommerce.payment;
 
+import com.havenza.ecommerce.common.exception.BusinessRuleException;
+import com.havenza.ecommerce.common.exception.ResourceNotFoundException;
+import com.havenza.ecommerce.common.exception.UnauthorizedException;
 import com.havenza.ecommerce.order.OrderEntity;
 import com.havenza.ecommerce.order.OrderRepository;
 import com.havenza.ecommerce.order.OrderStatus;
@@ -20,14 +23,14 @@ public class PaymentService {
     @Transactional
     public PaymentDto processPayment(Long orderId, Long userId) {
         OrderEntity order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
 
         if (!order.getUser().getId().equals(userId)) {
-            throw new RuntimeException("Not authorized");
+            throw new UnauthorizedException("Not authorized");
         }
 
         if (paymentRepository.findByOrderId(orderId).isPresent()) {
-            throw new RuntimeException("Payment already processing or completed");
+            throw new BusinessRuleException("Payment already processing or completed");
         }
 
         PaymentEntity payment = PaymentEntity.builder()
@@ -54,10 +57,10 @@ public class PaymentService {
     @Transactional(readOnly = true)
     public PaymentDto getPaymentStatus(Long orderId, Long userId) {
         PaymentEntity payment = paymentRepository.findByOrderId(orderId)
-                .orElseThrow(() -> new RuntimeException("Payment not found for order"));
+                .orElseThrow(() -> new ResourceNotFoundException("Payment not found for order"));
 
         if (!payment.getOrder().getUser().getId().equals(userId)) {
-            throw new RuntimeException("Not authorized");
+            throw new UnauthorizedException("Not authorized");
         }
 
         return PaymentDto.fromEntity(payment);

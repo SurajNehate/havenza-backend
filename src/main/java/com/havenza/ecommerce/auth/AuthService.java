@@ -4,6 +4,9 @@ import com.havenza.ecommerce.auth.dto.AuthResponse;
 import com.havenza.ecommerce.auth.dto.LoginRequest;
 import com.havenza.ecommerce.auth.dto.RegisterRequest;
 import com.havenza.ecommerce.auth.dto.UserDto;
+import com.havenza.ecommerce.common.exception.DuplicateResourceException;
+import com.havenza.ecommerce.common.exception.ResourceNotFoundException;
+import com.havenza.ecommerce.common.exception.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,7 +28,7 @@ public class AuthService {
     @Transactional
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Error: Email is already in use!");
+            throw new DuplicateResourceException("Error: Email is already in use!");
         }
 
         UserEntity user = UserEntity.builder()
@@ -63,12 +66,12 @@ public class AuthService {
     public UserDto getMe() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
-            throw new RuntimeException("User not authenticated");
+            throw new UnauthorizedException("User not authenticated");
         }
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         UserEntity user = userRepository.findById(userDetails.getId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         return UserDto.fromEntity(user);
     }
@@ -77,12 +80,12 @@ public class AuthService {
     public UserDto updateMe(com.havenza.ecommerce.auth.dto.UpdateProfileRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
-            throw new RuntimeException("User not authenticated");
+            throw new UnauthorizedException("User not authenticated");
         }
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         UserEntity user = userRepository.findById(userDetails.getId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         if (request.getFullName() != null) {
             user.setFullName(request.getFullName());

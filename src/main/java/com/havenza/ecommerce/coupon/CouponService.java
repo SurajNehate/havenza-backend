@@ -1,5 +1,8 @@
 package com.havenza.ecommerce.coupon;
 
+import com.havenza.ecommerce.common.exception.BusinessRuleException;
+import com.havenza.ecommerce.common.exception.DuplicateResourceException;
+import com.havenza.ecommerce.common.exception.ResourceNotFoundException;
 import com.havenza.ecommerce.coupon.dto.CouponDto;
 import com.havenza.ecommerce.coupon.dto.CreateCouponRequest;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +27,7 @@ public class CouponService {
     @Transactional
     public CouponDto createCoupon(CreateCouponRequest request) {
         if (couponRepository.findByCode(request.getCode().toUpperCase()).isPresent()) {
-            throw new RuntimeException("Coupon code already exists");
+            throw new DuplicateResourceException("Coupon code already exists");
         }
 
         CouponEntity coupon = CouponEntity.builder()
@@ -43,15 +46,15 @@ public class CouponService {
     @Transactional(readOnly = true)
     public CouponDto validateCoupon(String code) {
         CouponEntity coupon = couponRepository.findByCode(code.toUpperCase())
-                .orElseThrow(() -> new RuntimeException("Coupon not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Coupon not found"));
 
         if (!coupon.isActive()) {
-            throw new RuntimeException("Coupon is inactive");
+            throw new BusinessRuleException("Coupon is inactive");
         }
 
         LocalDateTime now = LocalDateTime.now();
         if (now.isBefore(coupon.getValidFrom()) || now.isAfter(coupon.getValidUntil())) {
-            throw new RuntimeException("Coupon is expired or not yet valid");
+            throw new BusinessRuleException("Coupon is expired or not yet valid");
         }
 
         return CouponDto.fromEntity(coupon);

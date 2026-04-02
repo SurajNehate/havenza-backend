@@ -3,6 +3,8 @@ package com.havenza.ecommerce.wishlist;
 import com.havenza.ecommerce.auth.UserEntity;
 import com.havenza.ecommerce.auth.UserRepository;
 import com.havenza.ecommerce.common.PagedResponse;
+import com.havenza.ecommerce.common.exception.DuplicateResourceException;
+import com.havenza.ecommerce.common.exception.ResourceNotFoundException;
 import com.havenza.ecommerce.product.ProductEntity;
 import com.havenza.ecommerce.product.ProductRepository;
 import com.havenza.ecommerce.wishlist.dto.WishlistDto;
@@ -32,14 +34,14 @@ public class WishlistService {
     @Transactional
     public WishlistDto addToWishlist(Long userId, Long productId) {
         if (wishlistRepository.existsByUserIdAndProductId(userId, productId)) {
-            throw new RuntimeException("Product is already in the wishlist");
+            throw new DuplicateResourceException("Product is already in the wishlist");
         }
 
         UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         ProductEntity product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
         WishlistEntity wishlistEntity = WishlistEntity.builder()
                 .user(user)
@@ -52,7 +54,7 @@ public class WishlistService {
     @Transactional
     public void removeFromWishlist(Long userId, Long productId) {
         WishlistEntity wishlistEntity = wishlistRepository.findByUserIdAndProductId(userId, productId)
-                .orElseThrow(() -> new RuntimeException("Product not found in wishlist"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found in wishlist"));
 
         wishlistRepository.delete(wishlistEntity);
     }

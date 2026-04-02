@@ -1,6 +1,7 @@
 package com.havenza.ecommerce.product;
 
 import com.havenza.ecommerce.common.PagedResponse;
+import com.havenza.ecommerce.common.exception.ResourceNotFoundException;
 import com.havenza.ecommerce.product.dto.CreateProductRequest;
 import com.havenza.ecommerce.product.dto.ProductDto;
 import lombok.RequiredArgsConstructor;
@@ -40,21 +41,21 @@ public class ProductService {
     @Transactional(readOnly = true)
     public ProductDto getProductBySlug(String slug) {
         ProductEntity product = productRepository.findBySlug(slug)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         return ProductDto.fromEntity(product);
     }
 
     @Transactional(readOnly = true)
     public ProductDto getProductById(Long id) {
         ProductEntity product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         return ProductDto.fromEntity(product);
     }
 
     @Transactional
     public ProductDto createProduct(CreateProductRequest request) {
         CategoryEntity category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 
         String slug = request.getName().toLowerCase()
                 .replaceAll("[^a-z0-9]+", "-")
@@ -108,10 +109,10 @@ public class ProductService {
     @Transactional
     public ProductDto updateProduct(Long id, CreateProductRequest request) {
         ProductEntity product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
         CategoryEntity category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 
         product.setName(request.getName());
         product.setDescription(request.getDescription());
@@ -173,7 +174,7 @@ public class ProductService {
     @Transactional
     public void deleteProduct(Long id) {
         ProductEntity product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         productRepository.delete(product);
     }
 }

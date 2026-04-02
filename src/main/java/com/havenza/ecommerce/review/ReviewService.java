@@ -3,6 +3,12 @@ package com.havenza.ecommerce.review;
 import com.havenza.ecommerce.auth.UserEntity;
 import com.havenza.ecommerce.auth.UserRepository;
 import com.havenza.ecommerce.common.PagedResponse;
+import com.havenza.ecommerce.common.exception.BusinessRuleException;
+import com.havenza.ecommerce.common.exception.DuplicateResourceException;
+import com.havenza.ecommerce.common.exception.ResourceNotFoundException;
+import com.havenza.ecommerce.common.exception.UnauthorizedException;
+import com.havenza.ecommerce.order.OrderRepository;
+import com.havenza.ecommerce.order.OrderStatus;
 import com.havenza.ecommerce.product.ProductEntity;
 import com.havenza.ecommerce.product.ProductRepository;
 import com.havenza.ecommerce.review.dto.CreateReviewRequest;
@@ -22,20 +28,26 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
+    private final OrderRepository orderRepository;
 
     @Transactional
     public ReviewDto addReview(Long userId, CreateReviewRequest request) {
         if (reviewRepository.existsByUserIdAndProductId(userId, request.getProductId())) {
-            throw new RuntimeException("You have already reviewed this product");
+            throw new DuplicateResourceException("You have already reviewed this product");
         }
 
         UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         ProductEntity product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
-        // TODO: In a real system, verify if the user actually purchased the product before allowing review
+        // Verify user has purchased the product before allowing review
+        if (!orderRepository.existsByUserIdAndItems_Variant_Product_IdAndStatusIn(
+                userId, request.getProductId(),
+                java.util.List.of(OrderStatus.DELIVERED, OrderStatus.CONFIRMED, OrderStatus.SHIPPED))) {
+            throw new BusinessRuleException("You can only review products you have purchased");
+        }
 
         ReviewEntity review = ReviewEntity.builder()
                 .user(user)
@@ -58,10 +70,10 @@ public class ReviewService {
     @Transactional
     public void deleteReview(Long reviewId, Long userId) {
         ReviewEntity review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new RuntimeException("Review not found"));
-                
+                .orElseThrow(() -> new ResourceNotFoundException("Review not found"));
+
         if (!review.getUser().getId().equals(userId)) {
-            throw new RuntimeException("Not authorized to delete this review");
+            throw new UnauthorizedException("Not authorized to delete this review");
         }
         
         reviewRepository.delete(review);

@@ -29,6 +29,29 @@ The application requires several environment variables or application properties
    ```
    The backend will normally start on `http://localhost:8080`. Note that the `DataSeeder.java` script runs automatically on the first run to insert default products and categories if missing.
 
+## API Modules
+
+| Module | Base Path | Auth | Description |
+|--------|-----------|------|-------------|
+| Auth | `/api/v1/auth` | Public | Registration, Login, Profile |
+| Products | `/api/v1/products` | Public | Product listing and detail |
+| Categories | `/api/v1/categories` | Public | Category listing |
+| Banners | `/api/v1/banners` | Public | Active homepage banners |
+| Cart | `/api/v1/cart` | JWT | Shopping cart CRUD |
+| Orders | `/api/v1/orders` | JWT | Order placement, history, cancellation |
+| Payments | `/api/v1/payments` | JWT | Payment processing and status |
+| Wishlists | `/api/v1/wishlists` | JWT | Wishlist management |
+| Reviews | `/api/v1/reviews` | Mixed | Product reviews (read=public, write=JWT) |
+| Coupons | `/api/v1/coupons` | Mixed | Coupon validation (public), creation (admin) |
+| Admin | `/api/v1/admin` | Admin | Dashboard, users, orders, products, coupons, banners |
+
+## Security
+
+- **Authentication**: JWT-based stateless authentication (BCrypt password hashing)
+- **Authorization**: Role-based access control (CUSTOMER, ADMIN) via `@PreAuthorize`
+- **Token Expiry**: Configurable via `JWT_EXPIRATION` (default: 24 hours)
+- **CORS**: Configured for frontend origin
+
 ## Deployment to Render.com
 
 We use a Multi-Stage `Dockerfile` to automatically build and deploy the Spring Boot application on [Render](https://render.com).
@@ -54,3 +77,11 @@ Under **Advanced settings** in the Web Service creation panel, add your environm
 
 ### 4. Deploy!
 Click **Create Web Service**. Render will automatically begin building the Maven package using the `Dockerfile` instructions and boot up the Spring Boot app instantly afterwards. You'll receive a public URL (e.g. `https://your-service.onrender.com`) that you must put into your Frontend environment!
+
+## Documentation
+
+Comprehensive user stories for testing (Selenium, API, Manual) are available in:
+```
+../docs/user-stories/
+```
+See the [User Stories README](../docs/user-stories/README.md) for the full index with all API endpoints documented.
