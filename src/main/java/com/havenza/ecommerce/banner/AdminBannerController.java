@@ -26,4 +26,15 @@ public class AdminBannerController {
     public ResponseEntity<ApiResponse<BannerDto>> createBanner(@RequestBody BannerDto request) {
         return ResponseEntity.ok(ApiResponse.success(bannerService.createBanner(request), "Banner created"));
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<BannerDto>> updateBanner(@PathVariable Long id, @RequestBody BannerDto request) {
+        return ResponseEntity.ok(ApiResponse.success(bannerService.updateBanner(id, request), "Banner updated"));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteBanner(@PathVariable Long id) {
+        bannerService.deleteBanner(id);
+        return ResponseEntity.ok(ApiResponse.success(null, "Banner deleted"));
+    }
 }

@@ -71,6 +71,7 @@ public class OrderService {
             if (coupon.getMaxDiscountAmount() != null && discountAmount.compareTo(coupon.getMaxDiscountAmount()) > 0) {
                 discountAmount = coupon.getMaxDiscountAmount();
             }
+            totalAmount = totalAmount.subtract(discountAmount);
         }
 
         OrderEntity order = OrderEntity.builder()

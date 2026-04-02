@@ -27,4 +27,20 @@ public class AdminCouponController {
     public ResponseEntity<ApiResponse<CouponDto>> createCoupon(@RequestBody CreateCouponRequest request) {
         return ResponseEntity.ok(ApiResponse.success(couponService.createCoupon(request), "Coupon created"));
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<CouponDto>> updateCoupon(@PathVariable Long id, @RequestBody CreateCouponRequest request) {
+        return ResponseEntity.ok(ApiResponse.success(couponService.updateCoupon(id, request), "Coupon updated"));
+    }
+
+    @PatchMapping("/{id}/toggle")
+    public ResponseEntity<ApiResponse<CouponDto>> toggleCoupon(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(couponService.toggleCouponActive(id), "Coupon status toggled"));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteCoupon(@PathVariable Long id) {
+        couponService.deleteCoupon(id);
+        return ResponseEntity.ok(ApiResponse.success(null, "Coupon deleted"));
+    }
 }

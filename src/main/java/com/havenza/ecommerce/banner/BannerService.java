@@ -1,6 +1,7 @@
 package com.havenza.ecommerce.banner;
 
 import com.havenza.ecommerce.banner.dto.BannerDto;
+import com.havenza.ecommerce.common.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -42,5 +43,24 @@ public class BannerService {
                 .build();
 
         return BannerDto.fromEntity(bannerRepository.save(banner));
+    }
+
+    @Transactional
+    public BannerDto updateBanner(Long id, BannerDto request) {
+        BannerEntity banner = bannerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Banner not found"));
+        banner.setTitle(request.getTitle());
+        banner.setImageUrl(request.getImageUrl());
+        banner.setLinkUrl(request.getLinkUrl());
+        banner.setActive(request.isActive());
+        banner.setSortOrder(request.getSortOrder() != null ? request.getSortOrder() : 0);
+        return BannerDto.fromEntity(bannerRepository.save(banner));
+    }
+
+    @Transactional
+    public void deleteBanner(Long id) {
+        BannerEntity banner = bannerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Banner not found"));
+        bannerRepository.delete(banner);
     }
 }
