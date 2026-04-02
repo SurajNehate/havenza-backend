@@ -37,7 +37,7 @@ public class AdminService {
 
         BigDecimal totalRevenue = orderRepository.findAll().stream()
                 .filter(o -> o.getStatus() == OrderStatus.DELIVERED)
-                .map(o -> o.getTotalAmount().subtract(o.getDiscountAmount() != null ? o.getDiscountAmount() : BigDecimal.ZERO))
+                .map(com.havenza.ecommerce.order.OrderEntity::getTotalAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         Map<String, Long> salesByStatus = orderRepository.findAll().stream()
@@ -49,7 +49,7 @@ public class AdminService {
                         o -> o.getCreatedAt().getMonth().name().substring(0, 3) + " " + o.getCreatedAt().getYear(),
                         Collectors.reducing(
                                 BigDecimal.ZERO,
-                                o -> o.getTotalAmount().subtract(o.getDiscountAmount() != null ? o.getDiscountAmount() : BigDecimal.ZERO),
+                                com.havenza.ecommerce.order.OrderEntity::getTotalAmount,
                                 BigDecimal::add
                         )
                 ));
