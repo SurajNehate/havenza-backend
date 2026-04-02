@@ -2,6 +2,7 @@ package com.havenza.ecommerce.admin;
 
 import com.havenza.ecommerce.admin.dto.DashboardDto;
 import com.havenza.ecommerce.auth.UserRepository;
+import com.havenza.ecommerce.order.OrderEntity;
 import com.havenza.ecommerce.order.OrderRepository;
 import com.havenza.ecommerce.order.OrderStatus;
 import com.havenza.ecommerce.product.ProductRepository;
@@ -35,9 +36,11 @@ public class AdminService {
         long totalProducts = productRepository.count();
         long totalOrders = orderRepository.count();
 
+        // Calculate total revenue from DELIVERED orders only.
+        // totalAmount in DB is already the net value (after discount).
         BigDecimal totalRevenue = orderRepository.findAll().stream()
                 .filter(o -> o.getStatus() == OrderStatus.DELIVERED)
-                .map(com.havenza.ecommerce.order.OrderEntity::getTotalAmount)
+                .map(OrderEntity::getTotalAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         Map<String, Long> salesByStatus = orderRepository.findAll().stream()
@@ -49,7 +52,7 @@ public class AdminService {
                         o -> o.getCreatedAt().getMonth().name().substring(0, 3) + " " + o.getCreatedAt().getYear(),
                         Collectors.reducing(
                                 BigDecimal.ZERO,
-                                com.havenza.ecommerce.order.OrderEntity::getTotalAmount,
+                                OrderEntity::getTotalAmount,
                                 BigDecimal::add
                         )
                 ));
