@@ -13,6 +13,7 @@ public class BannerDto {
     private String linkUrl;
     private boolean active;
     private Integer sortOrder;
+    private String termsAndConditions;
 
     public static BannerDto fromEntity(BannerEntity entity) {
         return BannerDto.builder()
@@ -22,6 +23,7 @@ public class BannerDto {
                 .linkUrl(entity.getLinkUrl())
                 .active(entity.isActive())
                 .sortOrder(entity.getSortOrder())
+                .termsAndConditions(entity.getTermsAndConditions())
                 .build();
     }
 }

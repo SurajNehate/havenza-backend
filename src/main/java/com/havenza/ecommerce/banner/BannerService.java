@@ -40,6 +40,7 @@ public class BannerService {
                 .linkUrl(request.getLinkUrl())
                 .active(request.isActive())
                 .sortOrder(request.getSortOrder() != null ? request.getSortOrder() : 0)
+                .termsAndConditions(request.getTermsAndConditions())
                 .build();
 
         return BannerDto.fromEntity(bannerRepository.save(banner));
@@ -54,6 +55,7 @@ public class BannerService {
         banner.setLinkUrl(request.getLinkUrl());
         banner.setActive(request.isActive());
         banner.setSortOrder(request.getSortOrder() != null ? request.getSortOrder() : 0);
+        banner.setTermsAndConditions(request.getTermsAndConditions());
         return BannerDto.fromEntity(bannerRepository.save(banner));
     }
 

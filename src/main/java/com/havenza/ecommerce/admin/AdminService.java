@@ -31,12 +31,12 @@ public class AdminService {
 
     @Transactional(readOnly = true)
     public DashboardDto getDashboardStats() {
-        long totalUsers = userRepository.count();
+        long totalUsers = userRepository.countByRoleNot(com.havenza.ecommerce.auth.Role.ADMIN);
         long totalProducts = productRepository.count();
         long totalOrders = orderRepository.count();
 
         BigDecimal totalRevenue = orderRepository.findAll().stream()
-                .filter(o -> o.getStatus() == OrderStatus.DELIVERED || o.getStatus() == OrderStatus.CONFIRMED)
+                .filter(o -> o.getStatus() == OrderStatus.DELIVERED)
                 .map(o -> o.getTotalAmount().subtract(o.getDiscountAmount() != null ? o.getDiscountAmount() : BigDecimal.ZERO))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 

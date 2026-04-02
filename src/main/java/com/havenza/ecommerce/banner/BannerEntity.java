@@ -34,6 +34,9 @@ public class BannerEntity {
     @Column(name = "sort_order")
     private Integer sortOrder = 0;
 
+    @Column(name = "terms_and_conditions", length = 2000)
+    private String termsAndConditions;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
