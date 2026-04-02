@@ -1,4 +1,4 @@
-uo# Stage 1: Build using Maven image (no mvnw needed)
+# Stage 1: Build using Maven image (no mvnw needed)
 FROM maven:3.9.6-eclipse-temurin-17 AS builder
 WORKDIR /app
 
